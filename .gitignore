@@ -1,0 +1,4 @@
+# Ignore sensetive files
+.env
+__pycache__/
+*.pyc

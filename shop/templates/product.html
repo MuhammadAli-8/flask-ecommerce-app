@@ -1,0 +1,393 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- SECTION -->
+<div class="section">
+	<!-- container -->
+	<div class="container">
+		<!-- row -->
+		<div class="row">
+			<!-- Product main img -->
+			<div class="col-md-5 col-md-push-2">
+				<div id="product-main-img">
+					{% for picture in pictures %}
+					<div class="product-preview">
+						<img src="{{ url_for('static', filename='img/' ~ picture.img_url) }}" alt="">
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- /Product main img -->
+
+			<!-- Product thumb imgs -->
+			<div class="col-md-2  col-md-pull-5">
+				<div id="product-imgs">
+					{% for picture in pictures %}
+					<div class="product-preview">
+						<img src="{{ url_for('static', filename='img/' ~ picture.img_url) }}" alt="">
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			<!-- /Product thumb imgs -->
+
+			<!-- Product details -->
+			<div class="col-md-5">
+				<div class="product-details">
+					<h2 class="product-name">{{product.name}}</h2>
+					<div>
+						<div class="product-rating">
+							{% for star in range(0,5) %}
+							{% if rating - loop.index0 >= 1 %}
+							<i class="fa fa-star"></i>
+							{% else %}
+							<i class="fa fa-star-o"></i>
+							{% endif %}
+							{% endfor %}
+						</div>
+						{% if current_user.is_authenticated %}
+						<a class="review-link" href="#product-tab">{{rating_count}} Review(s) | Add your review</a>
+						{% else %}
+						<a class="review-link" href="#product-tab">{{rating_count}} Review(s)</a>
+						{% endif %}
+					</div>
+					<div>
+						{% if product.price_before %}
+						<h3 class="product-price">${{product.price}} <del
+								class="product-old-price">${{product.price_before}}</del></h3>
+						{% else %}
+						<h3 class="product-price">${{product.price}}</h3>
+						{% endif %}
+						{% if product.stock==0 %}
+						<span class="product-available">Out Of Stock</span>
+						{% elif 3 >= product.stock and product.stock >= 1 %}
+						<span class="product-available">In Stock ({{product.stock}})</span>
+						{% else %}
+						<span class="product-available">In Stock</span>
+						{% endif %}
+					</div>
+					<p>{{product.note}}</p>
+
+					<div class="product-options">
+						<!-- <label>
+							Quantity
+							<select class="input-select">
+								<option value="0">X</option>
+							</select>
+						</label> -->
+					</div>
+					{% if product.stock %}
+					<form action="{{ url_for('orders.add_to_cart', product_id=product.id) }}" method="POST">
+						<div class="add-to-cart">
+							<a href="{{url_for('orders.add_to_cart', product_id=product.id)}}"><button
+									class="add-to-cart-btn"><i class="fa-solid fa-money-bill"></i> Buy Now</button></a>
+							<a href="{{url_for('orders.add_to_cart', product_id=product.id)}}"><button
+									class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button></a>
+						</div>
+					</form>
+					{% endif %}
+
+					<!-- <ul class="product-btns">
+						<li><a href="#"><i class="fa fa-heart-o"></i> add to wishlist</a></li>
+						<li><a href="#"><i class="fa fa-exchange"></i> add to compare</a></li>
+					</ul> -->
+
+					<ul class="product-links">
+						{% if product.category %}
+						<li>Category:</li>
+						<li><a href="#">{{ product.category }}</a></li>
+						{% else %}
+						<li>Category:</li>
+						<li><a href="#">Unknown</a></li>
+						{% endif %}
+						<br>
+						{% if product.brand %}
+						<li>Brand:</li>
+						<li><a href="#">{{ product.brand }}</a></li>
+						{% else %}
+						<li>Brand:</li>
+						<li><a href="#">Unknown</a></li>
+						{% endif %}
+					</ul>
+
+					<ul class="product-links">
+						<li>Share:</li>
+						<li><a href="#"><i class="fa fa-facebook"></i></a></li>
+						<li><a href="#"><i class="fa fa-twitter"></i></a></li>
+						<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
+						<li><a href="#"><i class="fa fa-envelope"></i></a></li>
+					</ul>
+					<ul style="margin-top: 20px;">
+						{% if current_user.role == 'admin' %}
+						<div>
+							<a class="btn btn-info btn-sm mt-1 mb-1"
+								href="{{url_for('products.product_update', product_id=product.id)}}">Update</a>
+						</div>
+						{% endif %}
+					</ul>
+
+				</div>
+			</div>
+			<!-- /Product details -->
+
+			<!-- Product tab -->
+			<div class="col-md-12">
+				<div id="product-tab">
+					<!-- product tab nav -->
+					<ul class="tab-nav">
+						<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
+						<li><a data-toggle="tab" href="#tab2">specifications</a></li>
+						<li><a data-toggle="tab" href="#tab3">Reviews ({{rating_count}})</a></li>
+					</ul>
+					<!-- /product tab nav -->
+
+					<!-- product tab content -->
+					<div class="tab-content">
+						<!-- tab1  -->
+						<div id="tab1" class="tab-pane fade in active">
+							<div class="row">
+								<div class="col-md-12">
+									<p>{{product.description}}</p>
+								</div>
+							</div>
+						</div>
+						<!-- /tab1  -->
+
+						<!-- tab2  -->
+						<div id="tab2" class="tab-pane fade in">
+							<div class="row">
+								<div class="col-md-12">
+									<table class="table table-striped">
+										<thead>
+										</thead>
+										<tbody>
+											{% for key, value in specifications.items() %}
+											{% if value %}
+											<tr>
+												<td>{{ key }}</td>
+												<td>{{ value }}</td>
+											</tr>
+											{% endif %}
+											{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<!-- /tab2  -->
+
+						<!-- tab3  -->
+						<div id="tab3" class="tab-pane fade in">
+							<div class="row">
+								<!-- Rating -->
+								<div class="col-md-3">
+									<div id="rating">
+										<div class="rating-avg">
+											<span>{{rating}}</span>
+											<div class="rating-stars">
+												{% for star in range(0,5) %}
+												{% if rating - loop.index0 >= 1 %}
+												<i class="fa fa-star"></i>
+												{% else %}
+												<i class="fa fa-star-o"></i>
+												{% endif %}
+												{% endfor %}
+											</div>
+										</div>
+										<ul class="rating">
+											{% for i in range(5, 0, -1) %}
+											<li>
+												<div class="rating-stars">
+													{% for _ in range(i) %}
+													<i class="fa fa-star"></i>
+													{% endfor %}
+													{% for _ in range(5 - i) %}
+													<i class="fa fa-star-o"></i>
+													{% endfor %}
+												</div>
+												<div class="rating-progress">
+													{% if rating_count %}
+													<div
+														style="width: {{ (one_rating_count[i] / rating_count * 100) | round(2) }}%;">
+													</div>
+													{% else %}
+													<div style="width: 0%;"></div>
+													{% endif %}
+												</div>
+												<span class="sum">{{ one_rating_count[i] }}</span>
+											</li>
+											{% endfor %}
+										</ul>
+									</div>
+								</div>
+								<!-- /Rating -->
+
+								<!-- Reviews -->
+								<div class="col-md-6">
+									<div class="section-nav">
+									</div>
+									<div class="products-widget-slick" data-nav="#slick-nav-reviews">
+										{% if actual_reviews %}
+										<div>
+											<ul class="reviews">
+												{% for review in actual_reviews %}
+												<li>
+													<div class="review-heading">
+														<h5 class="name">{{ review.user.username }}</h5>
+														<p class="date">{{ review.created_at.strftime('%d %b %Y, %I:%M
+															%p') }}</p>
+														<div class="review-rating">
+															{% for i in range(1, 6) %}
+															<i
+																class="fa fa-star{% if i > review.rating %}-o empty{% endif %}"></i>
+															{% endfor %}
+														</div>
+													</div>
+													<div class="review-body">
+														<p>{{ review.review }}</p>
+													</div>
+												</li>
+												{% if loop.index % 3 == 0 and not loop.last %}
+											</ul>
+										</div>
+										<div>
+											<ul class="reviews">
+												{% endif %}
+												{% endfor %}
+											</ul>
+										</div>
+										{% else %}
+										<div>
+											<ul class="reviews">
+												<li>
+													<div class="review-body">
+														<p>No reviews yet. Be the first to review this product!</p>
+													</div>
+												</li>
+											</ul>
+										</div>
+										{% endif %}
+									</div>
+									<div id="slick-nav-reviews" class="products-slick-nav"></div>
+								</div>
+								<!-- /Reviews -->
+								<!-- Review Form -->
+								{% if current_user.is_authenticated %}
+								<div class="col-md-3">
+									<div id="review-form">
+										<form class="review-form" method="POST"
+											action="{{url_for('products.product', product_id=product.id)}}">
+											{{ form.hidden_tag() }}
+											{% if form.review.errors %}
+											{{ form.review(class="form-control form-control-lg is-invalid") }}
+											<div class="invalid-feedback">
+												{% for error in form.review.errors %}
+												<span>{{ error }}</span>
+												{% endfor %}
+											</div>
+											{% else %}
+											{{ form.review(class="input", placeholder="Your Review") }}
+											{% endif %}
+											<div class="input-rating">
+												<span>Your Rating: </span>
+												<div class="stars">
+													{% for value, label in form.rating.choices %}
+													<input id="star{{ loop.revindex }}" name="rating"
+														value="{{ loop.revindex }}" type="radio" {% if
+														form.rating.data==loop.revindex %}checked{% endif %}>
+													<label for="star{{ loop.revindex }}"></label>
+													{% endfor %}
+												</div>
+												{% if form.rating.errors %}
+												<div class="error-message" style=" color: red;
+														font-size: 0.9em;
+														margin-top: 5px;">
+													{% for error in form.rating.errors %}
+													<p>{{ error }}</p>
+													{% endfor %}
+												</div>
+												{% endif %}
+											</div>
+											{{ form.submit(class="primary-btn") }}
+										</form>
+									</div>
+								</div>
+								{% endif %}
+								<!-- /Review Form -->
+							</div>
+						</div>
+						<!-- /tab3  -->
+					</div>
+					<!-- /product tab content  -->
+				</div>
+			</div>
+			<!-- /product tab -->
+		</div>
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<!-- Section -->
+<div class="section">
+	<!-- container -->
+	<div class="container">
+		<!-- row -->
+		<div class="row">
+
+			<div class="col-md-12">
+				<div class="section-title text-center">
+					<h3 class="title">Related Products</h3>
+				</div>
+			</div>
+			
+			{% for product in related_products %}
+			<!-- product -->
+			<div class="col-md-3 col-xs-6">
+				<div class="product">
+					<div class="product-img">
+						<img src="{{ url_for('static', filename='img/' ~ product.category ~ '.png') }}" alt="">
+						<div class="product-label">
+							{% if product.price_before %}
+                      		<span class="sale">{{ ((1 - product.price / product.price_before) * 100) | round | int }}%</span>
+                      		{% endif %}
+						</div>
+					</div>
+					<div class="product-body">
+						<p class="product-category">{{product.category}}</p>
+						<h3 class="product-name"><a href="{{ url_for('products.product', product_id=product.id) }}">{{product.name}}</a></h3>
+						<h4 class="product-price">
+							${{ product.price }} {% if product.price_before %} <del class="product-old-price">${{ product.price_before }}</del> {% endif %}
+						</h4>
+						<div class="product-rating">
+							{% for star in range(0, 5) %}
+							{% if product.rating - loop.index0 >= 1 %}
+							<i class="fa fa-star"></i>
+							{% else %}
+							<i class="fa fa-star-o"></i>
+							{% endif %}
+							{% endfor %}
+						</div>
+					</div>
+					<div class="add-to-cart">
+						<a href="{{url_for('orders.add_to_cart', product_id=product.id)}}"><<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button></a>
+					</div>
+				</div>
+			</div>
+			<!-- /product -->
+			{% if loop.index0 == 1 %}
+			<div class="clearfix visible-sm visible-xs"></div>
+			{% endif %}
+			{% endfor %}
+
+
+		</div>
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+</div>
+<!-- /Section -->
+
+
+{% endblock content %}

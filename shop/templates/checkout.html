@@ -1,0 +1,132 @@
+{% extends 'layout.html' %}
+{% block content %}
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <form action="{{ url_for('orders.checkout') }}" method="POST">
+                <div class="col-md-7">
+                    <div class="billing-details">
+                        <div class="section-title">
+                            <h3 class="title">Shipping address</h3>
+                        </div>
+                        <div class="form-group">
+                            {{ form.full_name(class="input", placeholder="Full Name", value= current_user.username) }}
+                            {% if form.full_name.errors %}
+                            <div class="error-message">
+                                {% for error in form.full_name.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.email(class="input", placeholder="Email", value= current_user.email) }}
+                            {% if form.email.errors %}
+                            <div class="error-message">
+                                {% for error in form.email.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.address(class="input", placeholder="Address", value= current_user.address) }}
+                            {% if form.address.errors %}
+                            <div class="error-message">
+                                {% for error in form.address.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.city(class="input", placeholder="City") }}
+                            {% if form.city.errors %}
+                            <div class="error-message">
+                                {% for error in form.city.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.zip_code(class="input", placeholder="ZIP Code") }}
+                            {% if form.zip_code.errors %}
+                            <div class="error-message">
+                                {% for error in form.zip_code.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.phone(class="input", placeholder="Phone Number", value= current_user.phone) }}
+                            {% if form.phone.errors %}
+                            <div class="error-message">
+                                {% for error in form.phone.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- Order notes -->
+                    <div class="order-notes">
+                        {{ form.order_notes(class="input", placeholder="Order Notes") }}
+                        {% if form.order_notes.errors %}
+                        <div class="error-message">
+                            {% for error in form.order_notes.errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Order Details -->
+                <div class="col-md-5 order-details">
+                    <div class="section-title text-center">
+                        <h3 class="title">Your Order</h3>
+                    </div>
+                    <div class="order-summary">
+                        <div class="order-col">
+                            <div><strong>PRODUCT</strong></div>
+                            <div><strong>TOTAL</strong></div>
+                        </div>
+                        <div class="order-products">
+                            {% for item in cart_items %}
+                            <div class="order-col">
+                                <div>{{ item.quantity }}x {{ item.product.name }}</div>
+                                <div>${{ item.product.price * item.quantity }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="order-col">
+                            <div>Shipping</div>
+                            <div><strong>FREE</strong></div>
+                        </div>
+                        <div class="order-col">
+                            <div><strong>TOTAL</strong></div>
+                            <div><strong class="order-total">${{ cart_total }}</strong></div>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        {% for subfield in form.payment_method %}
+                        <div class="input-radio">
+                            {{ subfield(id="payment-" ~ loop.index) }}
+                            <label for="payment-{{ loop.index }}">
+                                <span></span>
+                                {{ subfield.label.text }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {{ form.submit(class="primary-btn order-submit", value="Place order") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

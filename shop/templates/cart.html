@@ -1,0 +1,38 @@
+{% extends 'layout.html' %} {% block content %}
+
+<h1>Your Cart</h1>
+{% for item in cart_items %}
+<div class="product-widget">
+    <div class="product-img">
+        <img
+            src="{{ url_for('static', filename='img/' ~ item.product.category ~ '.png') }}"
+            alt=""
+        />
+    </div>
+    <div class="product-body">
+        <p class="product-category">{{ item.product.category }}</p>
+        <h3 class="product-name">
+            <a href="{{ url_for('products.product', product_id=item.product.id) }}">{{ item.product.name }}</a
+            >
+        </h3>
+        <h4 class="product-price">
+            ${{ item.product.price }} {% if item.product.old_price %}
+            <del class="product-old-price">${{ item.product.old_price }}</del> {%
+            endif %}
+        </h4>
+        <form action="{{ url_for('orders.update_cart', cart_item_id=item.id) }}" method="POST">
+            <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+            <button type="submit">Update Quantity</button>
+        </form>
+        <form action="{{ url_for('orders.remove_from_cart', cart_item_id=item.id) }}" method="POST">
+            <button type="submit">Remove</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<div class="cart-btns col-md-5">
+    <a href="{{ url_for('orders.checkout')}}">Checkout<i class="fa fa-arrow-circle-right"></i></a>
+</div>
+
+{% endblock content %}

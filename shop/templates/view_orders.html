@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+
+
+<div class="container">
+    {% for order in orders %}
+        <div class="cart-list">
+            <h3>Status: {{ order.status }}</h3>
+            {% for item in order.items %}
+            <div class="product-widget">
+                <div class="product-img">
+                    <img src="{{ url_for('static', filename='img/' ~ item.product.category ~ '.png') }}" alt="{{ item.product.name }}">
+                </div>
+                <div class="product-body">
+                    <h3 class="product-name"><a href="{{ url_for('products.product', product_id=item.product.id) }}">{{ item.product.name }}</a></h3>
+                    <h4 class="product-price"><span class="qty">{{ item.quantity }}x</span>${{ item.product.price }}</h4>
+                </div>
+            </div>
+            {% endfor %}
+            <h3>Total: {{ order.total }}, Date: {{ order.created_at.strftime('%Y-%m-%d') }}, Ship To: {{ order.name }}, at: {{order.address}}</h3>
+            <br>
+            <br>
+            <br>
+        </div>
+    {% endfor %}
+</div>
+
+
+
+
+{% endblock content %}

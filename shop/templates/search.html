@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="breadcrumb-tree">
+                    <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                    <li>Search</li>
+                    <li>Results for "{{ query }}" ({{ total_products }} Results)</li>
+                </ul>
+            </div>
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /BREADCRUMB -->
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- ASIDE -->
+            <div id="aside" class="col-md-3">
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">Brands</h3>
+                    <form method="GET" action="{{ url_for('products.search') }}">
+                        <div class="checkbox-filter">
+                            {% for brand in brands %}
+                            <div class="input-checkbox">
+                                <input type="checkbox" name="brand" value="{{ brand }}" id="brand-{{ loop.index }}" {% if brand in request.args.getlist('brand') %}checked{% endif %} />
+                                <label for="brand-{{ loop.index }}">
+                                    <span></span>
+                                    {{ brand|capitalize }}
+                                    <small>({{ brand_counts[brand] }})</small>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="aside">
+                            <h3 class="aside-title">Price</h3>
+                            <div class="price-filter">
+                                <div id="price-slider"></div>
+                                <div class="input-number price-min">
+                                    <input id="price-min" type="number" name="price_min" value="{{ request.args.get('price_min', 1) }}" />
+                                    <span class="qty-up">+</span>
+                                    <span class="qty-down">-</span>
+                                </div>
+                                <span>-</span>
+                                <div class="input-number price-max">
+                                    <input id="price-max" type="number" name="price_max" value="{{ request.args.get('price_max', 9999) }}" />
+                                    <span class="qty-up">+</span>
+                                    <span class="qty-down">-</span>
+                                </div>
+                            </div>
+                            <input type="hidden" name="query" value="{{ query }}">
+
+                            {% if request.args.get('category') %}
+                            <input type="hidden" name="category" value="{{ request.args.get('category') }}">
+                            {% endif %}
+
+                            {% if request.args.get('sort_by') %}
+                                <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                            {% endif %}
+
+                            {% if request.args.get('page') or request.args.get('per_page') %}
+                                <input type="hidden" name="per_page" value="{{ per_page }}">
+                                <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+                            {% endif %}
+                        </div>
+                        <button class="btn btn-secondary" type="submit" style="margin-top: 8px;">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+            <!-- /ASIDE -->
+
+            <!-- STORE -->
+            <div id="store" class="col-md-9">
+                <!-- store top filter -->
+                <div class="store-filter clearfix">
+                    <div class="store-sort">
+                        <form id="sort-form" method="GET" action="{{ url_for('products.search') }}" style="display: inline;">
+                                <input type="hidden" name="query" value="{{ query }}">
+                            
+                            {% if request.args.get('category') %}
+                            <input type="hidden" name="category" value="{{ request.args.get('category') }}">
+                            {% endif %}
+
+                            {% if request.args.get('page') or request.args.get('per_page') %}
+                                <input type="hidden" name="per_page" value="{{ per_page }}">
+                                <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+                            {% endif %}
+
+                            {% if request.args.get('price_max') or request.args.get('price_min') %}
+                                <input type="hidden" name="price_max" value="{{ request.args.get('price_max', '') }}">
+                                <input type="hidden" name="price_min" value="{{ request.args.get('price_min', '') }}">
+                            {% endif %}
+                            
+                            {% if request.args.getlist('brand') %}
+                                {% for brand in request.args.getlist('brand') %}
+                                    <input type="hidden" name="brand" value="{{ brand }}">
+                                {% endfor %}
+                            {% endif %}
+                            <label>
+                                Sort By:
+                                <select class="input-select" name="sort_by" onchange="this.form.submit()">
+                                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price Low to High</option>
+                                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price High to Low</option>
+                                    <option value="avg_rating" {% if sort_by == 'avg_rating' %}selected{% endif %}>Average Rating</option>
+                                    <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>Latest</option>
+                                </select>
+                            </label>
+                        </form>
+                        <form id="show-form" method="GET" action="{{ url_for('products.search') }}" style="display: inline;">
+                                <input type="hidden" name="query" value="{{ query }}">
+                            
+                            {% if request.args.get('page') %}
+                            <input type="hidden" name="page" value="{{ request.args.get('page', 1) }}">
+                            {% endif %}
+                            
+                            {% if request.args.get('category') %}
+                            <input type="hidden" name="category" value="{{ request.args.get('category') }}">
+                            {% endif %}
+
+                            {% if request.args.get('sort_by') %}
+                                <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                            {% endif %}
+                            
+                            {% if request.args.get('price_max') or request.args.get('price_min') %}
+                                <input type="hidden" name="price_max" value="{{ request.args.get('price_max', '') }}">
+                                <input type="hidden" name="price_min" value="{{ request.args.get('price_min', '') }}">
+                            {% endif %}
+                            {% if request.args.getlist('brand') %}
+                                {% for brand in request.args.getlist('brand') %}
+                                    <input type="hidden" name="brand" value="{{ brand }}">
+                                {% endfor %}
+                            {% endif %}
+                            <label>
+                                Show:
+                                <select class="input-select" name="per_page" onchange="this.form.submit()">
+                                    <option value="24" {% if per_page == 24 %}selected{% endif %}>24</option>
+                                    <option value="45" {% if per_page == 45 %}selected{% endif %}>45</option>
+                                </select>
+                            </label>
+                        </form>
+                    </div>
+                </div>
+                <!-- /store top filter -->
+
+                <!-- store products -->
+                <div class="row">
+                    <!-- product -->
+                    {% for product in products.items %}
+                    <div class="col-md-4 col-xs-6">
+                        <div class="product">
+                            <div class="product-img">
+                                <img src="{{ url_for('static', filename='img/' ~ product.category ~ '.png') }}" alt="" />
+                                {% if product.price_before %}
+                                <div class="product-label">
+                                    <span class="sale">{{ -(100 - product.price/product.price_before*100) | round(0) }}%</span>
+                                    <span class="new">NEW</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="product-body">
+                                <p class="product-category">{{ product.category }}</p>
+                                <h3 class="product-name">
+                                    <a href="{{ url_for('products.product', product_id=product.id) }}">{{ product.name }}</a>
+                                </h3>
+                                <h4 class="product-price">
+                                    ${{ product.price }} {% if product.price_before %} <del class="product-old-price">${{ product.price_before }}</del> {% endif %}
+                                </h4>
+                                <div class="product-rating">
+                                    {% for star in range(0,5) %}
+                                        {% if product.rating - loop.index0 >= 1 %}
+                                            <i class="fa fa-star"></i>
+                                        {% else %}
+                                            <i class="fa fa-star-o"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="add-to-cart">
+                                <button class="add-to-cart-btn">
+                                    <i class="fa fa-shopping-cart"></i> add to cart
+                                </button>
+                            </div>
+                        </div>
+                        {% if loop.index is divisibleby 3 %}
+                        <div class="clearfix visible-lg visible-md visible-sm visible-xs"></div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <!-- /product -->
+                </div>
+                <!-- /store products -->
+
+                <!-- store bottom filter -->
+                <div class="store-filter clearfix">
+                    <span class="store-qty">Showing {{ products.items|length }} of {{ total_products }} products</span>
+                    <ul class="store-pagination">
+                        {% if products.has_prev %}
+                        <li><a href="{{ url_for('products.search', query=query, page=products.prev_num, per_page=per_page, sort_by=sort_by, price_min=request.args.get('price_min', ''), price_max=request.args.get('price_max', ''), brand=request.args.getlist('brand')|join(',')) }}">&laquo;</a></li>
+                        {% else %}
+                        <li class="disabled"><span>&laquo;</span></li>
+                        {% endif %}
+                        {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if page_num != products.page %}
+                                    <li><a href="{{ url_for('products.search',
+                                        query=query if query else None,
+                                        category=category if category else None,
+                                        page=products.next_num,
+                                        per_page=per_page if per_page else None,
+                                        sort_by=sort_by if sort_by else None,
+                                        price_min=request.args.get('price_min') if request.args.get('price_min') else None,
+                                        price_max=request.args.get('price_max') if request.args.get('price_max') else None,
+                                        **{'brand': request.args.getlist('brand') if request.args.getlist('brand') else None}) }}">{{ page_num }}</a></li>
+                                {% else %}
+                                    <li class="active"><span>{{ page_num }}</span></li>
+                                {% endif %}
+                            {% else %}
+                                <li class="disabled"><span>…</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if products.has_next %}
+                        <li><a href="{{ url_for('products.search',
+                            query=query if query else None,
+                            category=category if category else None,
+                            page=products.next_num,
+                            per_page=per_page if per_page else None,
+                            sort_by=sort_by if sort_by else None,
+                            price_min=request.args.get('price_min') if request.args.get('price_min') else None,
+                            price_max=request.args.get('price_max') if request.args.get('price_max') else None,
+                            **{'brand': request.args.getlist('brand') if request.args.getlist('brand') else None}) }}">&raquo;</a></li>
+                        {% else %}
+                        <li class="disabled"><span>&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <!-- /store bottom filter -->
+            </div>
+            <!-- /STORE -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+{% endblock %}
